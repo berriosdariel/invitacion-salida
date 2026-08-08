@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>¿Salimos?</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+      position: relative;
+    }
+
+    h2 {
+      color: #d63384;
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+
+    .step {
+      display: none;
+    }
+
+    .step.active {
+      display: block;
+    }
+
+    .btn-group {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 20px;
+      position: relative;
+      min-height: 50px;
+    }
+
+    button, .option-btn {
+      background-color: #ff4b2b;
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 25px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s, background-color 0.2s;
+    }
+
+    button:hover, .option-btn:hover {
+      background-color: #ff416c;
+      transform: scale(1.05);
+    }
+
+    #btnNo {
+      position: absolute;
+      background-color: #6c757d;
+    }
+
+    input[type="date"] {
+      padding: 10px 15px;
+      border-radius: 10px;
+      border: 2px solid #ff4b2b;
+      font-size: 16px;
+      outline: none;
+      margin-bottom: 20px;
+      width: 100%;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .option-btn {
+      width: 100%;
+      padding: 15px;
+      background-color: #f8f9fa;
+      color: #333;
+      border: 2px solid #e9ecef;
+    }
+
+    .option-btn:hover {
+      background-color: #ff9a9e;
+      color: white;
+      border-color: #ff9a9e;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <!-- Paso 1: Pregunta inicial -->
+    <div id="step1" class="step active">
+      <h2>¿Quieres ir a comer conmigo? 🥺</h2>
+      <div class="btn-group">
+        <button id="btnYes" onclick="nextStep(2)">¡Sí!</button>
+        <button id="btnNo">No</button>
+      </div>
+    </div>
+
+    <!-- Paso 2: Elegir fecha -->
+    <div id="step2" class="step">
+      <h2>¡Genial! elige la fecha: 📅</h2>
+      <input type="date" id="datePicker">
+      <button onclick="saveDate()">Continuar</button>
+    </div>
+
+    <!-- Paso 3: Elegir comida -->
+    <div id="step3" class="step">
+      <h2>¿Qué se te antoja comer? 🍕</h2>
+      <div class="options-grid">
+        <button class="option-btn" onclick="submitSelection('Sushi 🍣')">Sushi 🍣</button>
+        <button class="option-btn" onclick="submitSelection('Carne 🥩')">Carne 🥩</button>
+        <button class="option-btn" onclick="submitSelection('Hamburguesa 🍔')">Hamburguesa 🍔</button>
+        <button class="option-btn" onclick="submitSelection('Pizza 🍕')">Pizza 🍕</button>
+      </div>
+    </div>
+
+    <!-- Paso 4: Agradecimiento -->
+    <div id="step4" class="step">
+      <h2>¡Listo! ✨</h2>
+      <p>Tus respuestas han sido enviadas. ¡Nos vemos pronto!</p>
+    </div>
+  </div>
+
+  <script>
+    // Variables para guardar las respuestas
+    let selectedDate = '';
+
+    // Mover el botón "No" cuando pase el cursor sobre él
+    const btnNo = document.getElementById('btnNo');
+    btnNo.addEventListener('mouseover', () => {
+      const x = Math.floor(Math.random() * (window.innerWidth - 100)) - (window.innerWidth / 2 - 50);
+      const y = Math.floor(Math.random() * (window.innerHeight - 100)) - (window.innerHeight / 2 - 50);
+      btnNo.style.transform = `translate(${x}px, ${y}px)`;
+    });
+
+    // Pasar entre pasos
+    function nextStep(stepNumber) {
+      document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+      document.getElementById(`step${stepNumber}`).classList.add('active');
+    }
+
+    // Guardar la fecha seleccionada
+    function saveDate() {
+      const dateInput = document.getElementById('datePicker').value;
+      if (!dateInput) {
+        alert('Por favor selecciona una fecha');
+        return;
+      }
+      selectedDate = dateInput;
+      nextStep(3);
+    }
+
+    // Enviar los datos automáticamente al seleccionar la comida
+    function submitSelection(food) {
+      nextStep(4);
+
+      // Reemplaza ESTA URL con el endpoint que te da Formspree
+      const formspreeEndpoint = 'https://formspree.io/f/meajevqj';
+
+      fetch(formspreeEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          Respuesta: "¡Aceptó salir a comer!",
+          Fecha: selectedDate,
+          Comida: food
+        })
+      })
+      .then(response => {
+        if (response.ok) {
+          console.log('Enviado correctamente');
+        } else {
+          console.error('Error al enviar');
+        }
+      })
+      .catch(error => console.error('Error:', error));
+    }
+  </script>
+</body>
+</html>
